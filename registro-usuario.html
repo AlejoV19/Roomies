@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario - ROOMIES</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Variables CSS para consistencia */
+        :root {
+            --color-primary: #0ea5e9;
+            --color-secondary: #6366f1;
+            --color-accent: #10b981;
+            --color-text-dark: #0f172a;
+            --color-text-light: #6b7280;
+            --color-background: #f8fafc;
+            --color-border: #e5e7eb;
+            --color-white: #ffffff;
+            --color-error: #ef4444;
+            --color-success: #10b981;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --shadow-cyan: 0 4px 15px rgba(14, 165, 233, 0.3);
+            --gradient-primary: linear-gradient(135deg, #06b6d4, #0ea5e9);
+            --gradient-secondary: linear-gradient(135deg, #0ea5e9, #6366f1);
+            --gradient-accent: linear-gradient(135deg, #10b981, #059669);
+            --border-radius: 15px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Animaciones personalizadas */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0, 0, 0); }
+            40%, 43% { transform: translate3d(0, -8px, 0); }
+            70% { transform: translate3d(0, -4px, 0); }
+            90% { transform: translate3d(0, -2px, 0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Estilos base mejorados */
+        .registro-usuario-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .registro-usuario-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+            animation: shimmer 3s infinite linear;
+        }
+
+        .registro-usuario-card {
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            padding: 3rem;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .registro-usuario-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .registro-usuario-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        .registro-usuario-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            animation: slideInLeft 0.8s ease-out 0.2s both;
+        }
+
+        .registro-usuario-title::before {
+            content: '👤';
+            position: absolute;
+            left: -3rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        /* Formulario mejorado */
+        #registro-usuario-form {
+            animation: slideInRight 0.8s ease-out 0.4s both;
+        }
+
+        #registro-usuario-form label {
+            display: block;
+            margin-bottom: 1.5rem;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        #registro-usuario-form label:hover {
+            transform: translateY(-2px);
+        }
+
+        #registro-usuario-form label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.05), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        #registro-usuario-form label:hover::before {
+            transform: translateX(100%);
+        }
+
+        #registro-usuario-form input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--color-background);
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+
+        #registro-usuario-form input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: var(--color-white);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            transform: translateY(-2px);
+        }
+
+        #registro-usuario-form input::placeholder {
+            color: var(--color-text-light);
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        #registro-usuario-form input:focus::placeholder {
+            opacity: 0.4;
+        }
+
+        /* Botón de registro mejorado */
+        #btn-registrar {
+            width: 100%;
+            padding: 1.2rem 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        #btn-registrar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        #btn-registrar:hover {
+            background: var(--gradient-secondary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-cyan);
+        }
+
+        #btn-registrar:hover::before {
+            left: 100%;
+        }
+
+        #btn-registrar:active {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        #btn-registrar:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Mensajes de error y éxito mejorados */
+        .error-message {
+            color: var(--color-error);
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            display: none;
+            border-left: 4px solid var(--color-error);
+            box-shadow: var(--shadow-sm);
+            animation: shake 0.5s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-message::before {
+            content: '⚠️';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .success-message {
+            color: var(--color-success);
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            display: none;
+            border-left: 4px solid var(--color-success);
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.5s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .success-message::before {
+            content: '✅';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        /* Contenedor de enlaces mejorado */
+        .links-container {
+            text-align: center;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .link-volver {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-volver::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .link-volver:hover {
+            color: var(--color-secondary);
+            transform: translateY(-2px);
+        }
+
+        .link-volver:hover::before {
+            left: 100%;
+        }
+
+        /* Botón de administrador mejorado */
+        #btn-admin {
+            background: transparent !important;
+            color: var(--color-secondary) !important;
+            border: 2px solid var(--color-secondary) !important;
+            font-weight: 700 !important;
+            border-radius: 12px !important;
+            transition: var(--transition) !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+            width: 100%;
+            min-height: 48px;
+            font-size: 1rem !important;
+            padding: 1rem 1.5rem !important;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #btn-admin::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-secondary);
+            transition: left 0.3s;
+            z-index: -1;
+        }
+
+        #btn-admin:hover {
+            color: white !important;
+            border-color: transparent !important;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-cyan);
+        }
+
+        #btn-admin:hover::before {
+            left: 0;
+        }
+
+        /* Efectos de validación */
+        .input-valid {
+            border-color: var(--color-success) !important;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1) !important;
+        }
+
+        .input-invalid {
+            border-color: var(--color-error) !important;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        /* Indicadores de fortaleza de contraseña */
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--color-border);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: var(--color-error); }
+        .strength-medium { background: #f59e0b; }
+        .strength-strong { background: var(--color-success); }
+
+        /* Responsive design mejorado */
+        @media (max-width: 768px) {
+            .registro-usuario-container {
+                padding: 1rem;
+            }
+
+            .registro-usuario-card {
+                padding: 2rem;
+            }
+
+            .registro-usuario-title {
+                font-size: 2rem;
+            }
+
+            .registro-usuario-title::before {
+                display: none;
+            }
+
+            #registro-usuario-form input {
+                padding: 1rem 1.2rem;
+            }
+
+            #btn-registrar {
+                padding: 1rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .registro-usuario-card {
+                padding: 1.5rem;
+            }
+
+            .registro-usuario-title {
+                font-size: 1.8rem;
+            }
+
+            #registro-usuario-form label {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Efectos de carga */
+        .loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gradient-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="registro-usuario-container">
+        <div class="registro-usuario-card">
+            <div class="registro-usuario-title">Registro de Usuario</div>
+            <form id="registro-usuario-form">
+                <label for="idprop">ID de Propietario:
+                    <input type="text" id="idprop" name="idprop" required placeholder="Ej: 1234567890123">
+                </label>
+                
+                <label for="correo">Correo electrónico:
+                    <input type="email" id="correo" name="correo" required autocomplete="username" placeholder="ejemplo@correo.com">
+                </label>
+                
+                <label for="nombre">Nombre completo:
+                    <input type="text" id="nombre" name="nombre" maxlength="50" required placeholder="Su nombre completo">
+                </label>
+                
+                <label for="password">Contraseña:
+                    <input type="password" id="password" name="password" minlength="4" maxlength="20" required autocomplete="new-password" placeholder="Mínimo 4 caracteres">
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="password-strength-bar"></div>
+                    </div>
+                </label>
+                
+                <label for="confirm-password">Confirmar contraseña:
+                    <input type="password" id="confirm-password" name="confirm-password" required placeholder="Repita su contraseña">
+                </label>
+                
+                <button type="submit" id="btn-registrar">Registrar</button>
+            </form>
+            
+            <p id="registro-error" class="error-message"></p>
+            <p id="registro-exito" class="success-message">¡Usuario registrado exitosamente! Ahora puede iniciar sesión.</p>
+            
+            <div class="links-container">
+                <a href="login.html" class="link-volver">Volver a Iniciar Sesión</a>
+                <button id="btn-admin" type="button">Administrador</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const registroForm = document.getElementById('registro-usuario-form');
+        const registroError = document.getElementById('registro-error');
+        const registroExito = document.getElementById('registro-exito');
+        const btnRegistrar = document.getElementById('btn-registrar');
+        const btnAdmin = document.getElementById('btn-admin');
+        const passwordInput = document.getElementById('password');
+        const passwordStrengthBar = document.getElementById('password-strength-bar');
+        
+        // Validación de contraseña en tiempo real
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = calculatePasswordStrength(password);
+            updatePasswordStrength(strength);
+        });
+
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            if (password.length >= 4) score += 1;
+            if (password.length >= 8) score += 1;
+            if (/[a-z]/.test(password)) score += 1;
+            if (/[A-Z]/.test(password)) score += 1;
+            if (/[0-9]/.test(password)) score += 1;
+            if (/[^A-Za-z0-9]/.test(password)) score += 1;
+            
+            if (score <= 2) return 'weak';
+            if (score <= 4) return 'medium';
+            return 'strong';
+        }
+
+        function updatePasswordStrength(strength) {
+            const width = strength === 'weak' ? '33%' : strength === 'medium' ? '66%' : '100%';
+            const className = `strength-${strength}`;
+            
+            passwordStrengthBar.style.width = width;
+            passwordStrengthBar.className = `password-strength-bar ${className}`;
+        }
+        
+        // Limpiar errores al escribir
+        const inputs = registroForm.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                if (registroError.style.display === 'block') {
+                    registroError.style.display = 'none';
+                }
+                if (registroExito.style.display === 'block') {
+                    registroExito.style.display = 'none';
+                }
+                
+                // Remover clases de validación
+                this.classList.remove('input-valid', 'input-invalid');
+            });
+        });
+        
+        // Manejo del formulario de registro
+        registroForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Mostrar loading
+            btnRegistrar.textContent = 'Registrando...';
+            btnRegistrar.disabled = true;
+            btnRegistrar.classList.add('loading');
+            
+            const idprop = e.target.idprop.value.trim();
+            const correo = e.target.correo.value.trim().toLowerCase();
+            const nombre = e.target.nombre.value.trim();
+            const password = e.target.password.value;
+            const confirmPassword = e.target['confirm-password'].value;
+            
+            // Validaciones
+            if (!idprop) {
+                showError('Debe ingresar un ID de propietario.');
+                resetButton();
+                return;
+            }
+            
+            if (idprop.length < 5) {
+                showError('El ID debe tener al menos 5 caracteres.');
+                resetButton();
+                return;
+            }
+            
+            if (!correo) {
+                showError('Debe ingresar un correo electrónico.');
+                resetButton();
+                return;
+            }
+            
+            if (!isValidEmail(correo)) {
+                showError('Ingrese un correo electrónico válido.');
+                resetButton();
+                return;
+            }
+            
+            if (!nombre) {
+                showError('Debe ingresar su nombre completo.');
+                resetButton();
+                return;
+            }
+            
+            if (nombre.length < 2) {
+                showError('El nombre debe tener al menos 2 caracteres.');
+                resetButton();
+                return;
+            }
+            
+            if (!password) {
+                showError('Debe ingresar una contraseña.');
+                resetButton();
+                return;
+            }
+            
+            if (password.length < 4) {
+                showError('La contraseña debe tener al menos 4 caracteres.');
+                resetButton();
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showError('Las contraseñas no coinciden.');
+                resetButton();
+                return;
+            }
+            
+            // Simular delay para mejor UX
+            setTimeout(() => {
+                processRegistration(idprop, correo, nombre, password);
+            }, 500);
+        });
+        
+        // Función para procesar el registro
+        function processRegistration(idprop, correo, nombre, password) {
+            let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            
+            // Verificar si ya existe el ID
+            if (usuarios.some(u => u.idprop === idprop)) {
+                showError('Ya existe un usuario con ese ID.');
+                resetButton();
+                return;
+            }
+            
+            // Verificar si ya existe el correo
+            if (usuarios.some(u => u.correo === correo)) {
+                showError('Ya existe un usuario con ese correo.');
+                resetButton();
+                return;
+            }
+            
+            // Registrar usuario
+            usuarios.push({ idprop, correo, nombre, password });
+            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+            
+            // Mostrar éxito
+            showSuccess();
+            registroForm.reset();
+            resetButton();
+            
+            // Limpiar barra de fortaleza
+            passwordStrengthBar.style.width = '0%';
+            passwordStrengthBar.className = 'password-strength-bar';
+        }
+        
+        // Función para mostrar errores
+        function showError(message) {
+            registroError.textContent = message;
+            registroError.style.display = 'block';
+            registroError.style.animation = 'shake 0.5s ease-in-out';
+            registroExito.style.display = 'none';
+        }
+        
+        // Función para mostrar éxito
+        function showSuccess() {
+            registroExito.style.display = 'block';
+            registroExito.style.animation = 'fadeIn 0.5s ease-in-out';
+            registroError.style.display = 'none';
+        }
+        
+        // Función para resetear el botón
+        function resetButton() {
+            btnRegistrar.textContent = 'Registrar';
+            btnRegistrar.disabled = false;
+            btnRegistrar.classList.remove('loading');
+        }
+        
+        // Función para validar email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // Botón de administrador
+        btnAdmin.addEventListener('click', function() {
+            window.location.href = 'admin.html';
+        });
+        
+        // Enter key para submit
+        inputs.forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    registroForm.dispatchEvent(new Event('submit'));
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Solicitudes de Alquiler</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>ROOMIES</h1>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+                <li><a href="registro.html"><span>➕</span> Registrar Propiedad</a></li>
+                <li><a href="mis-solicitudes.html"><span>📋</span> Mis Solicitudes</a></li>
+                <li><a href="perfiles.html"><span>👥</span> Perfiles</a></li>
+                <li><a href="mi-perfil.html"><span>👤</span> Mi Perfil</a></li>
+                <li><a href="mensajes.html"><span>💬</span> Mensajes</a></li>
+                <li><a href="bienvenida.html"><span>⚙️</span> Mis Preferencias</a></li>
+                <li><a href="#" id="logout-link"><span>🚪</span> Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- Modal de Advertencia -->
+    <div id="modal-advertencia" class="modal-advertencia">
+        <div class="modal-contenido-advertencia">
+            <h2>⚠️ Información Importante</h2>
+            <div class="advertencia-contenido">
+                <p><strong>Bienvenido a la sección de Mis Solicitudes</strong></p>
+                <ul>
+                    <li>📋 Aquí puedes ver todas las propiedades que has registrado</li>
+                    <li>🔄 En la sección "Propiedades en proceso de alquiler" encontrarás las solicitudes pendientes</li>
+                    <li>✅ Puedes aceptar o denegar las solicitudes de alquiler</li>
+                    <li>📧 Usa el botón "Ver Detalle" para ver información del interesado y contactarlo</li>
+                    <li>💬 El botón "Enviar Correo" abrirá Gmail con un mensaje predefinido</li>
+                </ul>
+                <p><strong>Recuerda:</strong> Revisa cuidadosamente cada solicitud antes de tomar una decisión.</p>
+            </div>
+            <button id="btn-entendido" class="btn-entendido">Entendido</button>
+        </div>
+    </div>
+    
+    <main>
+        <section>
+            <h2>Propiedades registradas</h2>
+            <ul class="lista-propiedades" id="mis-propiedades">
+                <!-- Las propiedades del propietario se insertarán aquí -->
+            </ul>
+        </section>
+        <section id="proceso-alquiler-section" style="margin-top:2rem;">
+            <h2>Propiedades en proceso de alquiler</h2>
+            <ul class="lista-propiedades proceso" id="mis-proceso">
+                <!-- Las propiedades en proceso se insertarán aquí -->
+            </ul>
+        </section>
+    </main>
+    <template id="propiedad-template">
+        <li class="propiedad-lista">
+            <div class="carrusel">
+                <button class="carrusel-btn prev">&#10094;</button>
+                <img class="carrusel-img" src="" alt="Imagen propiedad">
+                <button class="carrusel-btn next">&#10095;</button>
+            </div>
+            <div class="info">
+                <h3></h3>
+                <p></p>
+            </div>
+        </li>
+    </template>
+    <template id="propiedad-proceso-template">
+        <li class="propiedad-lista">
+            <div class="carrusel">
+                <button class="carrusel-btn prev">&#10094;</button>
+                <img class="carrusel-img" src="" alt="Imagen propiedad">
+                <button class="carrusel-btn next">&#10095;</button>
+            </div>
+            <div class="info">
+                <h3></h3>
+                <p></p>
+                <button class="ver-detalle-btn">Ver Detalle</button>
+                <button class="aceptar-btn">Aceptar</button>
+                <button class="denegar-btn">Denegar</button>
+            </div>
+        </li>
+    </template>
+    <div id="modal-detalle" class="modal-detalle oculto">
+        <div class="modal-contenido">
+            <span class="cerrar-modal">&times;</span>
+            <h2 id="modal-titulo"></h2>
+            <p id="modal-descripcion"></p>
+            <p id="modal-contacto"></p>
+            <button id="btn-enviar-correo">Enviar Correo</button>
+        </div>
+    </div>
+    <div id="modal-contacto" class="modal-detalle oculto">
+        <div class="modal-contenido">
+            <span class="cerrar-modal-contacto">&times;</span>
+            <h2>Contacto del Usuario</h2>
+            <p id="contacto-info"></p>
+        </div>
+    </div>
+    <script>
+    function crearCarrusel(carrusel, imagenes) {
+        let indice = 0;
+        const img = carrusel.querySelector('.carrusel-img');
+        const prevBtn = carrusel.querySelector('.carrusel-btn.prev');
+        const nextBtn = carrusel.querySelector('.carrusel-btn.next');
+        function mostrarImagen(i) {
+            img.src = imagenes[i];
+        }
+        prevBtn.addEventListener('click', function() {
+            indice = (indice - 1 + imagenes.length) % imagenes.length;
+            mostrarImagen(indice);
+        });
+        nextBtn.addEventListener('click', function() {
+            indice = (indice + 1) % imagenes.length;
+            mostrarImagen(indice);
+        });
+        mostrarImagen(0);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Marcar página activa en el menú
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const navLinks = document.querySelectorAll('.main-nav a');
+        
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPage || (currentPage === 'index.html' && href === 'index.html')) {
+                link.classList.add('active');
+            }
+        });
+        
+        const idprop = localStorage.getItem('propietarioLogueado');
+        const rol = localStorage.getItem('rol');
+        if (!idprop) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Mostrar modal de advertencia siempre
+        const modalAdvertencia = document.getElementById('modal-advertencia');
+        const btnEntendido = document.getElementById('btn-entendido');
+        
+        // El modal ya está visible por defecto, solo necesitamos el evento para cerrarlo
+        btnEntendido.addEventListener('click', function() {
+            modalAdvertencia.style.display = 'none';
+        });
+        
+        const propiedades = JSON.parse(localStorage.getItem('propiedades') || '[]');
+        const proceso = JSON.parse(localStorage.getItem('procesoAlquiler') || '[]');
+        const template = document.getElementById('propiedad-template');
+        const lista = document.getElementById('mis-propiedades');
+        const listaProceso = document.getElementById('mis-proceso');
+        const templateProceso = document.getElementById('propiedad-proceso-template');
+        lista.innerHTML = '';
+        listaProceso.innerHTML = '';
+        let propsMostrar = propiedades;
+        let procMostrar = proceso;
+        if (rol !== 'admin') {
+            propsMostrar = propiedades.filter(p => p.idprop === idprop);
+            procMostrar = proceso.filter(p => p.idprop === idprop);
+        }
+        propsMostrar.forEach(function(prop) {
+            const clone = template.content.cloneNode(true);
+            const carrusel = clone.querySelector('.carrusel');
+            crearCarrusel(carrusel, prop.imagenes);
+            clone.querySelector('h3').textContent = prop.tipo.charAt(0).toUpperCase() + prop.tipo.slice(1) + ' en ' + prop.direccion;
+            clone.querySelector('p').innerHTML = `${prop.habitaciones} habitaciones, ${prop.banos} baños.<br>${prop.descripcion} <strong>$${prop.precio}/mes</strong>`;
+            lista.appendChild(clone);
+        });
+        procMostrar.forEach(function(prop, idx) {
+            const clone = templateProceso.content.cloneNode(true);
+            const carrusel = clone.querySelector('.carrusel');
+            crearCarrusel(carrusel, prop.imagenes);
+            clone.querySelector('h3').textContent = prop.tipo.charAt(0).toUpperCase() + prop.tipo.slice(1) + ' en ' + prop.direccion;
+            clone.querySelector('p').innerHTML = `${prop.habitaciones} habitaciones, ${prop.banos} baños.<br>${prop.descripcion} <strong>$${prop.precio}/mes</strong>`;
+            clone.querySelector('.ver-detalle-btn').addEventListener('click', function() {
+                mostrarModalDetalle(prop);
+            });
+            clone.querySelector('.aceptar-btn').addEventListener('click', function() {
+                aceptarPeticion(idx);
+            });
+            clone.querySelector('.denegar-btn').addEventListener('click', function() {
+                denegarPeticion(idx);
+            });
+            listaProceso.appendChild(clone);
+        });
+        document.getElementById('logout-link').onclick = function(e) {
+            e.preventDefault();
+            localStorage.removeItem('propietarioLogueado');
+            localStorage.removeItem('rol');
+            window.location.href = 'login.html';
+        };
+        // Modal detalle
+        const modal = document.getElementById('modal-detalle');
+        const cerrarModal = modal.querySelector('.cerrar-modal');
+        function mostrarModalDetalle(prop) {
+            document.getElementById('modal-titulo').textContent = prop.tipo.charAt(0).toUpperCase() + prop.tipo.slice(1) + ' en ' + prop.direccion;
+            document.getElementById('modal-descripcion').innerHTML = `Habitaciones: ${prop.habitaciones}<br>Baños: ${prop.banos}<br>Descripción: ${prop.descripcion}<br><strong>Precio: $${prop.precio}/mes</strong>`;
+            
+            // Obtener información del usuario que hizo clic en alquilar
+            const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            const usuarioInteresado = usuarios.find(u => u.idprop === prop.usuarioInteresado) || {
+                nombre: 'Usuario no registrado',
+                correo: 'No disponible',
+                idprop: 'No disponible'
+            };
+            
+            document.getElementById('modal-contacto').innerHTML = `
+                <strong>Información del Interesado:</strong><br>
+                <strong>Nombre:</strong> ${usuarioInteresado.nombre}<br>
+                <strong>Correo Electrónico:</strong> ${usuarioInteresado.correo}<br>
+                <strong>Número de Identidad:</strong> ${usuarioInteresado.idprop}
+            `;
+            
+            modal.classList.remove('oculto');
+        }
+        cerrarModal.onclick = function() {
+            modal.classList.add('oculto');
+        };
+        document.getElementById('btn-enviar-correo').onclick = function() {
+            // Obtener la propiedad actual del modal
+            const modalTitulo = document.getElementById('modal-titulo').textContent;
+            const proceso = JSON.parse(localStorage.getItem('procesoAlquiler') || '[]');
+            const prop = proceso.find(p => {
+                const propTitulo = p.tipo.charAt(0).toUpperCase() + p.tipo.slice(1) + ' en ' + p.direccion;
+                return propTitulo === modalTitulo;
+            });
+            
+            if (prop && prop.usuarioInteresado) {
+                const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+                const usuarioInteresado = usuarios.find(u => u.idprop === prop.usuarioInteresado);
+                
+                if (usuarioInteresado && usuarioInteresado.correo) {
+                    const asunto = encodeURIComponent('Consulta sobre propiedad en alquiler');
+                    const cuerpo = encodeURIComponent(`Hola ${usuarioInteresado.nombre},\n\nHe revisado tu solicitud de alquiler para la propiedad ${prop.tipo} en ${prop.direccion}.\n\nPor favor, contáctame para coordinar los detalles.\n\nSaludos cordiales.`);
+                    const urlGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${usuarioInteresado.correo}&su=${asunto}&body=${cuerpo}`;
+                    window.open(urlGmail, '_blank');
+                } else {
+                    alert('No se encontró información de contacto del usuario interesado.');
+                }
+            } else {
+                alert('No hay información del usuario interesado disponible.');
+            }
+        };
+        function aceptarPeticion(idx) {
+            const proceso = JSON.parse(localStorage.getItem('procesoAlquiler') || '[]');
+            const prop = proceso[idx]; // Usar el índice sin eliminar aún
+            
+            if (prop && prop.usuarioInteresado) {
+                const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+                const usuarioInteresado = usuarios.find(u => u.idprop === prop.usuarioInteresado);
+                
+                if (usuarioInteresado && usuarioInteresado.correo) {
+                    const asunto = encodeURIComponent('¡Solicitud de alquiler ACEPTADA!');
+                    const cuerpo = encodeURIComponent(`Hola ${usuarioInteresado.nombre},\n\n¡Excelentes noticias! He revisado tu solicitud de alquiler para la propiedad ${prop.tipo} en ${prop.direccion} y me complace informarte que ha sido ACEPTADA.\n\nPor favor, contáctame lo antes posible para coordinar los detalles del contrato y la entrega de llaves.\n\nEspero tu respuesta.\n\nSaludos cordiales.`);
+                    const urlGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${usuarioInteresado.correo}&su=${asunto}&body=${cuerpo}`;
+                    window.open(urlGmail, '_blank');
+                } else {
+                    alert('No se encontró información de contacto del usuario interesado.');
+                }
+            } else {
+                alert('No hay información del usuario interesado disponible.');
+            }
+            
+            // Ahora proceder con la aceptación
+            const propEliminada = proceso.splice(idx, 1)[0];
+            localStorage.setItem('procesoAlquiler', JSON.stringify(proceso));
+            
+            // Mostrar modal de contacto
+            document.getElementById('contacto-info').innerHTML = propEliminada.telefono ? `<strong>Teléfono:</strong> <a href='tel:${propEliminada.telefono}'>${propEliminada.telefono}</a>` : '<em>No hay teléfono registrado</em>';
+            document.getElementById('modal-contacto').classList.remove('oculto');
+            
+            // Opcional: aquí podrías guardar en otra lista de "alquiladas" si lo deseas
+            setTimeout(() => { window.location.reload(); }, 2000);
+        }
+        function denegarPeticion(idx) {
+            const proceso = JSON.parse(localStorage.getItem('procesoAlquiler') || '[]');
+            const propiedades = JSON.parse(localStorage.getItem('propiedades') || '[]');
+            const prop = proceso.splice(idx, 1)[0];
+            propiedades.push(prop);
+            localStorage.setItem('procesoAlquiler', JSON.stringify(proceso));
+            localStorage.setItem('propiedades', JSON.stringify(propiedades));
+            window.location.reload();
+        }
+        document.querySelector('.cerrar-modal-contacto').onclick = function() {
+            document.getElementById('modal-contacto').classList.add('oculto');
+        };
+    });
+    </script>
+    <style>
+    #btn-enviar-correo {
+        background: linear-gradient(90deg, #38a169 0%, #2f855a 100%);
+        color: #fff;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 0.5rem;
+        transition: background 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+    }
+    #btn-enviar-correo:hover {
+        background: #2f855a;
+        box-shadow: 0 4px 12px rgba(44,62,80,0.15);
+    }
+    
+    /* Estilos para el modal de advertencia */
+    .modal-advertencia {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .modal-contenido-advertencia {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        animation: modalEntrada 0.5s ease-out;
+    }
+    
+    @keyframes modalEntrada {
+        from {
+            opacity: 0;
+            transform: scale(0.8) translateY(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    
+    .modal-contenido-advertencia h2 {
+        margin: 0 0 1.5rem 0;
+        font-size: 1.8rem;
+        color: #fff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .advertencia-contenido {
+        text-align: left;
+        margin-bottom: 1.5rem;
+    }
+    
+    .advertencia-contenido p {
+        margin: 0.5rem 0;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    
+    .advertencia-contenido ul {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+    }
+    
+    .advertencia-contenido li {
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+    
+    .btn-entendido {
+        background: linear-gradient(90deg, #38a169 0%, #2f855a 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        margin-top: 1rem;
+    }
+    
+    .btn-entendido:hover {
+        background: linear-gradient(90deg, #2f855a 0%, #276749 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-entendido:active {
+        transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+        .modal-contenido-advertencia {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+        
+        .modal-contenido-advertencia h2 {
+            font-size: 1.5rem;
+        }
+        
+        .advertencia-contenido li {
+            font-size: 0.9rem;
+        }
+        
+        .btn-entendido {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
+    </style>
+</body>
+</html> 

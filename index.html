@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROOMIES - Encuentra tu hogar ideal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>ROOMIES</h1>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+                <li><a href="registro.html"><span>➕</span> Registrar Propiedad</a></li>
+                <li><a href="mis-solicitudes.html"><span>📋</span> Mis Solicitudes</a></li>
+                <li><a href="perfiles.html"><span>👥</span> Perfiles</a></li>
+                <li><a href="mi-perfil.html"><span>👤</span> Mi Perfil</a></li>
+                <li><a href="mensajes.html"><span>💬</span> Mensajes</a></li>
+                <li><a href="bienvenida.html"><span>⚙️</span> Mis Preferencias</a></li>
+                <li><a href="#" id="logout-link"><span>🚪</span> Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="card">
+                <h2>¡Bienvenido a ROOMIES!</h2>
+                <p>Encuentra tu hogar ideal o conecta con compañeros de alquiler perfectos</p>
+                <div class="hero-buttons">
+                    <a href="#propiedades" class="btn">Buscar Habitación</a>
+                    <a href="registro.html" class="btn btn-secondary">Ofrecer Habitación</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filtros -->
+        <section class="filtros-section">
+            <div class="card">
+                <h3>Filtrar Propiedades</h3>
+                <div class="filtros-grid">
+                    <div class="form-group">
+                        <label for="filtro-precio">Precio máximo:</label>
+                        <select id="filtro-precio">
+                            <option value="">Cualquier precio</option>
+                            <option value="5000">$5,000</option>
+                            <option value="8000">$8,000</option>
+                            <option value="12000">$12,000</option>
+                            <option value="15000">$15,000</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-tipo">Tipo de propiedad:</label>
+                        <select id="filtro-tipo">
+                            <option value="">Cualquier tipo</option>
+                            <option value="casa">Casa</option>
+                            <option value="apartamento">Apartamento</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-habitaciones">Habitaciones:</label>
+                        <select id="filtro-habitaciones">
+                            <option value="">Cualquier cantidad</option>
+                            <option value="1">1 habitación</option>
+                            <option value="2">2 habitaciones</option>
+                            <option value="3">3+ habitaciones</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Propiedades Destacadas -->
+        <section id="propiedades" class="propiedades-section">
+            <div class="card">
+                <h3>Propiedades Disponibles</h3>
+                <div class="propiedades-grid" id="propiedades-grid">
+                    <!-- Las propiedades se cargarán dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Estadísticas -->
+        <section class="stats-section">
+            <div class="card">
+                <h3>ROOMIES en números</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">150+</div>
+                        <div class="stat-label">Propiedades</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Usuarios</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">Satisfacción</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 ROOMIES - Encuentra tu hogar ideal</p>
+    </footer>
+
+    <!-- Modal de detalles -->
+    <div id="modal-detalle" class="modal oculto">
+        <div class="modal-contenido">
+            <span class="cerrar-modal">&times;</span>
+            <div id="modal-carrusel" class="modal-carrusel">
+                <button class="carrusel-btn prev" id="modal-prev">&#10094;</button>
+                <img id="modal-img" src="" alt="Imagen propiedad">
+                <button class="carrusel-btn next" id="modal-next">&#10095;</button>
+            </div>
+            <h2 id="modal-titulo"></h2>
+            <p id="modal-descripcion"></p>
+            <p id="modal-precio"></p>
+            <div class="modal-acciones">
+                <button id="btn-alquilar" class="btn">Alquilar Propiedad</button>
+                <button id="btn-contactar" class="btn btn-secondary">Contactar Propietario</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Redirección obligatoria a login si no está logueado
+        var idLog = localStorage.getItem('propietarioLogueado');
+        if (!idLog) {
+            window.location.href = 'login.html';
+        }
+        
+        // Verificar si el usuario ha completado la selección de preferencias
+        var preferencias = localStorage.getItem('preferenciasEstudiante');
+        if (!preferencias) {
+            window.location.href = 'bienvenida.html';
+        }
+        
+        // Marcado de página activa en el menú
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.main-nav a');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === currentPage || (currentPage === 'index.html' && href === 'index.html')) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Variables globales para el modal
+        let propiedadesActuales = [];
+        let propiedadActual = null;
+        let indiceImagenActual = 0;
+
+        // Cargar propiedades
+        function cargarPropiedades() {
+            propiedadesActuales = JSON.parse(localStorage.getItem('propiedades') || '[]');
+            const grid = document.getElementById('propiedades-grid');
+            
+            if (propiedadesActuales.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-propiedades">
+                        <h4>No hay propiedades disponibles</h4>
+                        <p>¡Sé el primero en registrar una propiedad!</p>
+                        <a href="registro.html" class="btn">Registrar Propiedad</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = '';
+            propiedadesActuales.forEach((propiedad, index) => {
+                const card = document.createElement('div');
+                card.className = 'propiedad-card';
+                card.innerHTML = `
+                    <img src="${propiedad.imagenes[0]}" alt="${propiedad.tipo}" class="propiedad-imagen">
+                    <div class="propiedad-info">
+                        <h4 class="propiedad-titulo">${propiedad.tipo.charAt(0).toUpperCase() + propiedad.tipo.slice(1)} en ${propiedad.direccion}</h4>
+                        <div class="propiedad-precio">$${propiedad.precio}/mes</div>
+                        <p class="propiedad-descripcion">${propiedad.descripcion}</p>
+                        <div class="propiedad-detalles">
+                            <span>🏠 ${propiedad.habitaciones} habitaciones</span>
+                            <span>🚿 ${propiedad.banos} baños</span>
+                        </div>
+                        <button class="btn" onclick="verDetalle(${index})">Ver Detalle</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Ver detalle de propiedad
+        function verDetalle(index) {
+            propiedadActual = propiedadesActuales[index];
+            indiceImagenActual = 0;
+            
+            mostrarImagenModal();
+            actualizarInformacionModal();
+            mostrarModal();
+        }
+
+        // Mostrar imagen actual en el modal
+        function mostrarImagenModal() {
+            if (propiedadActual && propiedadActual.imagenes.length > 0) {
+                document.getElementById('modal-img').src = propiedadActual.imagenes[indiceImagenActual];
+                
+                // Mostrar/ocultar botones de navegación
+                const prevBtn = document.getElementById('modal-prev');
+                const nextBtn = document.getElementById('modal-next');
+                
+                prevBtn.style.display = indiceImagenActual > 0 ? 'flex' : 'none';
+                nextBtn.style.display = indiceImagenActual < propiedadActual.imagenes.length - 1 ? 'flex' : 'none';
+            }
+        }
+
+        // Actualizar información del modal
+        function actualizarInformacionModal() {
+            if (!propiedadActual) return;
+            
+            document.getElementById('modal-titulo').textContent = 
+                propiedadActual.tipo.charAt(0).toUpperCase() + propiedadActual.tipo.slice(1) + ' en ' + propiedadActual.direccion;
+            
+            document.getElementById('modal-descripcion').innerHTML = `
+                <strong>Descripción:</strong> ${propiedadActual.descripcion}<br>
+                <strong>Habitaciones:</strong> ${propiedadActual.habitaciones}<br>
+                <strong>Baños:</strong> ${propiedadActual.banos}<br>
+                <strong>Dirección:</strong> ${propiedadActual.direccion}
+            `;
+            
+            document.getElementById('modal-precio').textContent = `Precio: $${propiedadActual.precio}/mes`;
+        }
+
+        // Mostrar modal
+        function mostrarModal() {
+            document.getElementById('modal-detalle').classList.remove('oculto');
+            document.body.style.overflow = 'hidden'; // Prevenir scroll
+        }
+
+        // Ocultar modal
+        function ocultarModal() {
+            document.getElementById('modal-detalle').classList.add('oculto');
+            document.body.style.overflow = 'auto'; // Restaurar scroll
+            propiedadActual = null;
+            indiceImagenActual = 0;
+        }
+
+        // Navegación del carrusel
+        document.getElementById('modal-prev').addEventListener('click', function() {
+            if (indiceImagenActual > 0) {
+                indiceImagenActual--;
+                mostrarImagenModal();
+            }
+        });
+
+        document.getElementById('modal-next').addEventListener('click', function() {
+            if (propiedadActual && indiceImagenActual < propiedadActual.imagenes.length - 1) {
+                indiceImagenActual++;
+                mostrarImagenModal();
+            }
+        });
+
+        // Cerrar modal
+        document.querySelector('.cerrar-modal').addEventListener('click', ocultarModal);
+
+        document.getElementById('modal-detalle').addEventListener('click', function(e) {
+            if (e.target === this) {
+                ocultarModal();
+            }
+        });
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !document.getElementById('modal-detalle').classList.contains('oculto')) {
+                ocultarModal();
+            }
+        });
+
+        // Alquilar propiedad
+        document.getElementById('btn-alquilar').addEventListener('click', function() {
+            if (!propiedadActual) return;
+            
+            // Mover propiedad a proceso de alquiler
+            const proceso = JSON.parse(localStorage.getItem('procesoAlquiler') || '[]');
+            const propiedadIndex = propiedadesActuales.findIndex(p => 
+                p.direccion === propiedadActual.direccion && 
+                p.tipo === propiedadActual.tipo
+            );
+            
+            if (propiedadIndex !== -1) {
+                const propiedadAlquilada = propiedadesActuales.splice(propiedadIndex, 1)[0];
+                propiedadAlquilada.usuarioInteresado = idLog;
+                proceso.push(propiedadAlquilada);
+                
+                localStorage.setItem('propiedades', JSON.stringify(propiedadesActuales));
+                localStorage.setItem('procesoAlquiler', JSON.stringify(proceso));
+                
+                alert('¡Propiedad alquilada exitosamente! El propietario será notificado.');
+                ocultarModal();
+                cargarPropiedades(); // Recargar la lista
+            }
+        });
+
+        // Contactar propietario
+        document.getElementById('btn-contactar').addEventListener('click', function() {
+            if (!propiedadActual) return;
+            
+            alert('Función de contacto en desarrollo. Por favor, usa el botón "Alquilar Propiedad" para expresar tu interés.');
+        });
+
+        // Cerrar sesión
+        document.getElementById('logout-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('propietarioLogueado');
+            localStorage.removeItem('rol');
+            window.location.href = 'login.html';
+        });
+
+        // Cargar propiedades al iniciar
+        cargarPropiedades();
+    </script>
+
+    <style>
+        /* Estilos específicos para la página de inicio */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero-section h2 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero-section p {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filtros-section {
+            margin-bottom: 2rem;
+        }
+
+        .filtros-section h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .propiedades-section h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .propiedad-detalles {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .no-propiedades {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+
+        .no-propiedades h4 {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats-section {
+            margin-top: 2rem;
+        }
+
+        .stats-section h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .modal-carrusel {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 1.5rem;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            background: #f8f9fa;
+        }
+
+        .modal-carrusel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .carrusel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            z-index: 10;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .carrusel-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carrusel-btn.prev {
+            left: 15px;
+        }
+
+        .carrusel-btn.next {
+            right: 15px;
+        }
+
+        .modal-acciones {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .modal-acciones .btn {
+            min-width: 150px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h2 {
+                font-size: 2rem;
+            }
+
+            .hero-section p {
+                font-size: 1.1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .filtros-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .modal-carrusel {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section h2 {
+                font-size: 1.8rem;
+            }
+
+            .hero-section p {
+                font-size: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .stat-number {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</body>
+</html>

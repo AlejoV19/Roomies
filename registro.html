@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Propiedad en Alquiler</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="zonas.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>ROOMIES</h1>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+                <li><a href="registro.html"><span>➕</span> Registrar Propiedad</a></li>
+                <li><a href="mis-solicitudes.html"><span>📋</span> Mis Solicitudes</a></li>
+                <li><a href="perfiles.html"><span>👥</span> Perfiles</a></li>
+                <li><a href="mi-perfil.html"><span>👤</span> Mi Perfil</a></li>
+                <li><a href="mensajes.html"><span>💬</span> Mensajes</a></li>
+                <li><a href="bienvenida.html"><span>⚙️</span> Mis Preferencias</a></li>
+                <li><a href="#" id="logout-link"><span>🚪</span> Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <form class="registro-form">
+            <h2>Datos de la Propiedad</h2>
+            <label>Tipo de Propiedad:
+                <select name="tipo">
+                    <option value="casa">Casa</option>
+                    <option value="apartamento">Apartamento</option>
+                </select>
+            </label>
+            <label>Dirección:
+                <input type="text" name="direccion" required placeholder="Ej: Col. Centro, Calle 5, Casa 12">
+            </label>
+            <label>Habitaciones:
+                <input type="number" name="habitaciones" min="1" required placeholder="Ej: 3">
+            </label>
+            <label>Baños:
+                <input type="number" name="banos" min="1" required placeholder="Ej: 2">
+            </label>
+            <label>Precio por mes ($):
+                <input type="number" name="precio" min="1" required placeholder="Ej: 8500">
+            </label>
+            <label>Descripción:
+                <textarea name="descripcion" rows="4" required placeholder="Ej: Casa amplia, cerca de supermercados y escuelas."></textarea>
+            </label>
+            <label>Foto(s) principal(es):
+                <input type="file" name="fotos" accept="image/*" multiple required>
+            </label>
+            <label>ID de Propietario:
+                <input type="text" name="idprop" required placeholder="Ej: 1234567890123">
+            </label>
+            <button type="submit">Registrar Propiedad</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2024 Alquiler de Casas y Apartamentos</p>
+    </footer>
+    
+    <!-- Modal de información -->
+    <div id="modal-info" class="modal-info">
+        <div class="modal-info-contenido">
+            <div class="icono-info">ℹ️</div>
+            <h3>Información Importante</h3>
+            <p>La cantidad disponible para registrar casas es de <strong>1 propiedad</strong> por propietario.</p>
+            <p>Una vez registrada una propiedad, no podrá registrar otra hasta que finalice el proceso de alquiler.</p>
+            <button id="btn-aceptar-info" class="btn-aceptar">Entendido</button>
+        </div>
+    </div>
+    
+    <script>
+    // Redirección obligatoria a login si no está logueado
+    var idLog = localStorage.getItem('propietarioLogueado');
+    if (!idLog) {
+        window.location.href = 'login.html';
+    }
+    
+    // Marcado de página activa en el menú
+    document.addEventListener('DOMContentLoaded', function() {
+        // Marcar página activa en el menú
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const navLinks = document.querySelectorAll('.main-nav a');
+        
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPage || (currentPage === 'index.html' && href === 'index.html')) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Mostrar modal de información después de 500ms
+        setTimeout(function() {
+            document.getElementById('modal-info').style.display = 'flex';
+        }, 500);
+        
+        // Función para validar visualmente la dirección
+        function validarDireccion() {
+            const btnMostrarZonas = document.getElementById('btn-mostrar-zonas');
+            const campoManual = document.getElementById('direccion-manual');
+            const campoOriginal = document.querySelector('input[name="direccion"]');
+            
+            if (btnMostrarZonas && btnMostrarZonas.textContent.includes('Zona seleccionada:')) {
+                // Hay una zona seleccionada
+                mostrarValidacionDireccion('✅ Dirección detectada: ' + btnMostrarZonas.textContent.replace('✅ Zona seleccionada: ', ''), 'success');
+            } else if (campoManual && campoManual.style.display !== 'none' && campoManual.value.trim()) {
+                // Hay dirección manual
+                mostrarValidacionDireccion('✅ Dirección manual ingresada', 'success');
+            } else if (campoOriginal && campoOriginal.value.trim()) {
+                // Hay dirección en el campo original
+                mostrarValidacionDireccion('✅ Dirección detectada: ' + campoOriginal.value, 'success');
+            } else {
+                // No hay dirección
+                mostrarValidacionDireccion('⚠️ Seleccione una zona o escriba una dirección', 'warning');
+            }
+        }
+        
+        function mostrarValidacionDireccion(mensaje, tipo) {
+            let validacionDiv = document.getElementById('validacion-direccion');
+            if (!validacionDiv) {
+                validacionDiv = document.createElement('div');
+                validacionDiv.id = 'validacion-direccion';
+                validacionDiv.style.marginTop = '0.5rem';
+                validacionDiv.style.padding = '0.5rem';
+                validacionDiv.style.borderRadius = '8px';
+                validacionDiv.style.fontSize = '0.9rem';
+                validacionDiv.style.fontWeight = '500';
+                
+                // Insertar después del contenedor de dirección
+                const direccionContainer = document.querySelector('.direccion-container');
+                if (direccionContainer) {
+                    direccionContainer.parentNode.insertBefore(validacionDiv, direccionContainer.nextSibling);
+                }
+            }
+            
+            validacionDiv.textContent = mensaje;
+            if (tipo === 'success') {
+                validacionDiv.style.background = '#f0fdf4';
+                validacionDiv.style.color = '#16a34a';
+                validacionDiv.style.border = '1px solid #bbf7d0';
+            } else {
+                validacionDiv.style.background = '#fef3c7';
+                validacionDiv.style.color = '#d97706';
+                validacionDiv.style.border = '1px solid #fde68a';
+            }
+        }
+        
+        // Validar dirección cada 2 segundos
+        setInterval(validarDireccion, 2000);
+        // Validar inmediatamente
+        setTimeout(validarDireccion, 1000);
+    });
+    
+    // Cerrar modal al hacer clic en aceptar
+    document.getElementById('btn-aceptar-info').addEventListener('click', function() {
+        document.getElementById('modal-info').style.display = 'none';
+    });
+    
+    // Cerrar modal al hacer clic fuera del contenido
+    document.getElementById('modal-info').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    });
+    
+    // Cerrar sesión
+    document.getElementById('logout-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('propietarioLogueado');
+        localStorage.removeItem('rol');
+        localStorage.removeItem('nombreUsuario');
+        window.location.href = 'login.html';
+    });
+    
+    // Manejo del formulario de registro
+    document.querySelector('.registro-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        // Mostrar loading
+        submitBtn.textContent = 'Registrando...';
+        submitBtn.disabled = true;
+        
+        // Obtener la dirección del campo correcto (manual o seleccionada)
+        let direccion = '';
+        const campoManual = document.getElementById('direccion-manual');
+        const campoOriginal = form.querySelector('input[name="direccion"]');
+        const btnMostrarZonas = document.getElementById('btn-mostrar-zonas');
+        
+        // Verificar si hay una zona seleccionada
+        if (btnMostrarZonas && btnMostrarZonas.textContent.includes('Zona seleccionada:')) {
+            direccion = btnMostrarZonas.textContent.replace('✅ Zona seleccionada: ', '');
+        } else if (campoManual && campoManual.style.display !== 'none' && campoManual.value.trim()) {
+            direccion = campoManual.value.trim();
+        } else if (campoOriginal && campoOriginal.value.trim()) {
+            direccion = campoOriginal.value.trim();
+        }
+        
+        // Validar campos requeridos
+        const idprop = form.idprop.value.trim();
+        const habitaciones = form.habitaciones.value;
+        const banos = form.banos.value;
+        const precio = form.precio.value;
+        const descripcion = form.descripcion.value.trim();
+        const archivos = form.fotos.files;
+        
+        // Validaciones
+        if (!idprop) {
+            mostrarError('Debe ingresar un ID de propietario.');
+            resetButton();
+            return;
+        }
+        
+        if (!direccion) {
+            mostrarError('Debe seleccionar una zona de la lista o escribir una dirección manualmente.');
+            resetButton();
+            return;
+        }
+        
+        if (!habitaciones || habitaciones < 1) {
+            mostrarError('Debe ingresar un número válido de habitaciones.');
+            resetButton();
+            return;
+        }
+        
+        if (!banos || banos < 1) {
+            mostrarError('Debe ingresar un número válido de baños.');
+            resetButton();
+            return;
+        }
+        
+        if (!precio || precio < 1) {
+            mostrarError('Debe ingresar un precio válido.');
+            resetButton();
+            return;
+        }
+        
+        if (!descripcion) {
+            mostrarError('Debe ingresar una descripción de la propiedad.');
+            resetButton();
+            return;
+        }
+        
+        if (archivos.length === 0) {
+            mostrarError('Debe seleccionar al menos una imagen.');
+            resetButton();
+            return;
+        }
+        
+        // Verificar si ya existe una propiedad con este ID
+        const propiedades = JSON.parse(localStorage.getItem('propiedades') || '[]');
+        const proceso = JSON.parse(localStorage.getItem('procesoAlquiler') || '[]');
+        const existe = propiedades.concat(proceso).some(p => p.idprop === idprop);
+        
+        if (existe) {
+            mostrarError('Ya existe una propiedad registrada con este ID. No puede registrar otra hasta que finalice el proceso de alquiler.');
+            resetButton();
+            return;
+        }
+        
+        // Procesar imágenes
+        const imagenes = [];
+        let cargadas = 0;
+        let errorEnCarga = false;
+        
+        for (let i = 0; i < archivos.length; i++) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                imagenes[i] = ev.target.result;
+                cargadas++;
+                if (cargadas === archivos.length && !errorEnCarga) {
+                    guardarPropiedad();
+                }
+            };
+            reader.onerror = function() {
+                errorEnCarga = true;
+                mostrarError('Error al cargar las imágenes. Intente de nuevo.');
+                resetButton();
+            };
+            reader.readAsDataURL(archivos[i]);
+        }
+        
+        function guardarPropiedad() {
+            try {
+                const propiedad = {
+                    idprop,
+                    tipo: form.tipo.value,
+                    direccion: direccion, // Usar la dirección detectada
+                    habitaciones: parseInt(habitaciones),
+                    banos: parseInt(banos),
+                    precio: parseInt(precio),
+                    descripcion,
+                    imagenes,
+                    fechaRegistro: new Date().toISOString()
+                };
+                
+                propiedades.push(propiedad);
+                localStorage.setItem('propiedades', JSON.stringify(propiedades));
+                
+                // Mostrar mensaje de éxito
+                mostrarExito('¡Propiedad registrada exitosamente!');
+                
+                // Redirigir al inicio después de 2 segundos
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+                
+            } catch (error) {
+                mostrarError('Error al guardar la propiedad. Intente de nuevo.');
+                resetButton();
+            }
+        }
+        
+        function resetButton() {
+            submitBtn.textContent = 'Registrar Propiedad';
+            submitBtn.disabled = false;
+        }
+        
+        function mostrarError(mensaje) {
+            // Crear o actualizar mensaje de error
+            let errorDiv = document.getElementById('error-message');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'error-message';
+                errorDiv.className = 'error-message';
+                form.appendChild(errorDiv);
+            }
+            errorDiv.textContent = mensaje;
+            errorDiv.style.display = 'block';
+            
+            // Scroll al mensaje de error
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function mostrarExito(mensaje) {
+            // Crear o actualizar mensaje de éxito
+            let successDiv = document.getElementById('success-message');
+            if (!successDiv) {
+                successDiv = document.createElement('div');
+                successDiv.id = 'success-message';
+                successDiv.className = 'success-message';
+                form.appendChild(successDiv);
+            }
+            successDiv.textContent = mensaje;
+            successDiv.style.display = 'block';
+        }
+    });
+    </script>
+</body>
+</html> 

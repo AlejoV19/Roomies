@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>ROOMIES</h1>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+                <li><a href="registro.html"><span>➕</span> Registrar Propiedad</a></li>
+                <li><a href="mis-solicitudes.html"><span>📋</span> Mis Solicitudes</a></li>
+                <li><a href="perfiles.html"><span>👥</span> Perfiles</a></li>
+                <li><a href="mi-perfil.html"><span>👤</span> Mi Perfil</a></li>
+                <li><a href="mensajes.html"><span>💬</span> Mensajes</a></li>
+                <li><a href="bienvenida.html"><span>⚙️</span> Mis Preferencias</a></li>
+                <li><a href="#" id="logout-link"><span>🚪</span> Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Control de Usuarios Registrados</h2>
+            <table id="tabla-usuarios" style="width:100%;border-collapse:collapse;margin-top:1.5rem;">
+                <thead>
+                    <tr style="background:#eaf6fb;">
+                        <th style="padding:0.7rem 0.3rem;border-bottom:1.5px solid #b3c6e7;">ID</th>
+                        <th style="padding:0.7rem 0.3rem;border-bottom:1.5px solid #b3c6e7;">Correo</th>
+                        <th style="padding:0.7rem 0.3rem;border-bottom:1.5px solid #b3c6e7;">Nombre</th>
+                        <th style="padding:0.7rem 0.3rem;border-bottom:1.5px solid #b3c6e7;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="usuarios-body">
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Marcar página activa en el menú
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const navLinks = document.querySelectorAll('.main-nav a');
+        
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPage || (currentPage === 'index.html' && href === 'index.html')) {
+                link.classList.add('active');
+            }
+        });
+        
+        const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+        const tbody = document.getElementById('usuarios-body');
+        tbody.innerHTML = '';
+        usuarios.forEach((u, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td style='padding:0.5rem 0.3rem;border-bottom:1px solid #e3eefd;'><span class='id-editable' data-idx='${idx}'>${u.idprop}</span></td><td style='padding:0.5rem 0.3rem;border-bottom:1px solid #e3eefd;'>${u.correo}</td><td style='padding:0.5rem 0.3rem;border-bottom:1px solid #e3eefd;'>${u.nombre}</td><td style='padding:0.5rem 0.3rem;border-bottom:1px solid #e3eefd;'><button class='btn-borrar' data-idx='${idx}' style='background:#e17055;color:#fff;border:none;padding:0.4rem 0.8rem;border-radius:5px;cursor:pointer;'>Borrar</button> <button class='btn-editar' data-idx='${idx}' style='background:#70a1ff;color:#fff;border:none;padding:0.4rem 0.8rem;border-radius:5px;cursor:pointer;'>Editar ID</button></td>`;
+            tbody.appendChild(tr);
+        });
+        tbody.querySelectorAll('.btn-borrar').forEach(btn => {
+            btn.onclick = function() {
+                const idx = parseInt(this.getAttribute('data-idx'));
+                if (confirm('¿Seguro que deseas borrar este usuario?')) {
+                    let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+                    usuarios.splice(idx, 1);
+                    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+                    location.reload();
+                }
+            };
+        });
+        tbody.querySelectorAll('.btn-editar').forEach(btn => {
+            btn.onclick = function() {
+                const idx = parseInt(this.getAttribute('data-idx'));
+                let usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+                const nuevoId = prompt('Nuevo ID para el usuario:', usuarios[idx].idprop);
+                if (nuevoId && nuevoId.trim() !== '' && !usuarios.some((u, i) => u.idprop === nuevoId && i !== idx)) {
+                    usuarios[idx].idprop = nuevoId.trim();
+                    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+                    location.reload();
+                } else if (nuevoId) {
+                    alert('El ID ya está en uso o es inválido.');
+                }
+            };
+        });
+        document.getElementById('logout-link').onclick = function(e) {
+            e.preventDefault();
+            window.location.href = 'login.html';
+        };
+    });
+    </script>
+</body>
+</html> 

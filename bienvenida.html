@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROOMIES - Bienvenido</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="bienvenida-container">
+        <div class="bienvenida-card">
+            <div class="bienvenida-header">
+                <h1 class="bienvenida-title">¡Bienvenido a ROOMIES!</h1>
+                <p class="bienvenida-subtitle">Ayúdanos a encontrar compañeros de alquiler perfectos para ti</p>
+            </div>
+
+            <div class="opciones-grid">
+                <div class="opcion-card" data-preferencia="academico">
+                    <span class="opcion-icono">📚</span>
+                    <h3 class="opcion-titulo">Académico</h3>
+                    <p class="opcion-descripcion">Me gusta estudiar en grupo y mantener un ambiente de aprendizaje</p>
+                </div>
+
+                <div class="opcion-card" data-preferencia="deportes">
+                    <span class="opcion-icono">⚽</span>
+                    <h3 class="opcion-titulo">Deportes</h3>
+                    <p class="opcion-descripcion">Soy deportista y busco compañeros activos</p>
+                </div>
+
+                <div class="opcion-card" data-preferencia="cultura">
+                    <span class="opcion-icono">🎭</span>
+                    <h3 class="opcion-titulo">Cultura y Arte</h3>
+                    <p class="opcion-descripcion">Me apasiona el arte, la música y las actividades culturales</p>
+                </div>
+
+                <div class="opcion-card" data-preferencia="tecnologia">
+                    <span class="opcion-icono">💻</span>
+                    <h3 class="opcion-titulo">Tecnología</h3>
+                    <p class="opcion-descripcion">Interesado en programación, startups y innovación</p>
+                </div>
+
+                <div class="opcion-card" data-preferencia="social">
+                    <span class="opcion-icono">👥</span>
+                    <h3 class="opcion-titulo">Social y Voluntariado</h3>
+                    <p class="opcion-descripcion">Me gusta ayudar a otros y participar en actividades sociales</p>
+                </div>
+
+                <div class="opcion-card" data-preferencia="emprendimiento">
+                    <span class="opcion-icono">🚀</span>
+                    <h3 class="opcion-titulo">Emprendimiento</h3>
+                    <p class="opcion-descripcion">Tengo ideas de negocio y busco compañeros emprendedores</p>
+                </div>
+
+                <div class="opcion-card" data-preferencia="investigacion">
+                    <span class="opcion-icono">🔬</span>
+                    <h3 class="opcion-titulo">Investigación</h3>
+                    <p class="opcion-descripcion">Me dedico a la investigación académica y científica</p>
+                </div>
+
+                <div class="opcion-card" data-preferencia="internacional">
+                    <span class="opcion-icono">🌍</span>
+                    <h3 class="opcion-titulo">Internacional</h3>
+                    <p class="opcion-descripcion">Interesado en intercambios y conexiones internacionales</p>
+                </div>
+            </div>
+
+            <div class="bienvenida-buttons">
+                <button class="btn" id="btn-continuar">Continuar</button>
+                <button class="btn btn-secondary" id="btn-salir">Salir</button>
+            </div>
+
+            <div class="bienvenida-info">
+                <p>Selecciona al menos 3 intereses que mejor te describan</p>
+                <div class="seleccionados" id="seleccionados"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let preferenciasSeleccionadas = [];
+
+        // Eventos para las opciones
+        document.querySelectorAll('.opcion-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const preferencia = this.dataset.preferencia;
+                
+                if (this.classList.contains('seleccionada')) {
+                    // Deseleccionar
+                    this.classList.remove('seleccionada');
+                    preferenciasSeleccionadas = preferenciasSeleccionadas.filter(p => p !== preferencia);
+                } else {
+                    // Seleccionar
+                    this.classList.add('seleccionada');
+                    preferenciasSeleccionadas.push(preferencia);
+                }
+                
+                actualizarSeleccionados();
+                actualizarBotonContinuar();
+            });
+        });
+
+        function actualizarSeleccionados() {
+            const seleccionadosDiv = document.getElementById('seleccionados');
+            const preferenciasNombres = {
+                'academico': '📚 Académico',
+                'deportes': '⚽ Deportes',
+                'cultura': '🎭 Cultura y Arte',
+                'tecnologia': '💻 Tecnología',
+                'social': '👥 Social y Voluntariado',
+                'emprendimiento': '🚀 Emprendimiento',
+                'investigacion': '🔬 Investigación',
+                'internacional': '🌍 Internacional'
+            };
+            
+            seleccionadosDiv.innerHTML = preferenciasSeleccionadas.map(pref => 
+                `<span class="tag-seleccionado">${preferenciasNombres[pref]}</span>`
+            ).join('');
+        }
+
+        function actualizarBotonContinuar() {
+            const btnContinuar = document.getElementById('btn-continuar');
+            if (preferenciasSeleccionadas.length >= 3) {
+                btnContinuar.disabled = false;
+                btnContinuar.textContent = `Continuar (${preferenciasSeleccionadas.length} seleccionados)`;
+            } else {
+                btnContinuar.disabled = true;
+                btnContinuar.textContent = `Selecciona al menos 3 (${preferenciasSeleccionadas.length}/3)`;
+            }
+        }
+
+        // Botón continuar
+        document.getElementById('btn-continuar').addEventListener('click', function() {
+            if (preferenciasSeleccionadas.length >= 3) {
+                localStorage.setItem('preferenciasEstudiante', JSON.stringify(preferenciasSeleccionadas));
+                window.location.href = 'index.html';
+            } else {
+                alert('Por favor, selecciona al menos 3 intereses antes de continuar.');
+            }
+        });
+
+        // Botón salir
+        document.getElementById('btn-salir').addEventListener('click', function() {
+            localStorage.removeItem('propietarioLogueado');
+            localStorage.removeItem('rol');
+            window.location.href = 'login.html';
+        });
+
+        // Inicializar
+        actualizarBotonContinuar();
+    </script>
+
+    <style>
+        /* Estilos específicos para bienvenida */
+        .bienvenida-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .bienvenida-title {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .bienvenida-subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .bienvenida-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .bienvenida-info {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .bienvenida-info p {
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+        }
+
+        .seleccionados {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .tag-seleccionado {
+            background: #27ae60;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .bienvenida-title {
+                font-size: 2rem;
+            }
+
+            .bienvenida-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .bienvenida-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .opciones-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bienvenida-title {
+                font-size: 1.8rem;
+            }
+
+            .bienvenida-subtitle {
+                font-size: 1rem;
+            }
+
+            .opcion-card {
+                padding: 1.5rem;
+            }
+
+            .opcion-icono {
+                font-size: 2.5rem;
+            }
+
+            .opcion-titulo {
+                font-size: 1.1rem;
+            }
+
+            .opcion-descripcion {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</body>
+</html> 

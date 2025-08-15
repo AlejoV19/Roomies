@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - ROOMIES</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Variables CSS para consistencia */
+        :root {
+            --color-primary: #0ea5e9;
+            --color-secondary: #6366f1;
+            --color-accent: #10b981;
+            --color-text-dark: #0f172a;
+            --color-text-light: #6b7280;
+            --color-background: #f8fafc;
+            --color-border: #e5e7eb;
+            --color-white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --shadow-cyan: 0 4px 15px rgba(14, 165, 233, 0.3);
+            --gradient-primary: linear-gradient(135deg, #06b6d4, #0ea5e9);
+            --gradient-secondary: linear-gradient(135deg, #0ea5e9, #6366f1);
+            --gradient-accent: linear-gradient(135deg, #10b981, #059669);
+            --border-radius: 15px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .perfil-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .perfil-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .perfil-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .perfil-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .perfil-header p {
+            font-size: 1.3rem;
+            line-height: 1.7;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 400;
+            color: var(--color-text-light);
+        }
+
+        .perfil-form {
+            background: var(--color-white);
+            border: 2px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideInLeft 0.6s ease-out 0.2s both;
+        }
+
+        .form-seccion {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-seccion h3 {
+            color: var(--color-text-dark);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-seccion h3::before {
+            content: '👤';
+            font-size: 1.2rem;
+        }
+
+        .form-seccion:nth-child(2) h3::before {
+            content: '📝';
+        }
+
+        .form-seccion:nth-child(3) h3::before {
+            content: '🎯';
+        }
+
+        .form-grupo {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grupo label {
+            display: block;
+            color: var(--color-text-dark);
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .form-grupo input,
+        .form-grupo textarea,
+        .form-grupo select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: var(--transition);
+            box-sizing: border-box;
+            background: var(--color-background);
+            font-family: inherit;
+        }
+
+        .form-grupo input:focus,
+        .form-grupo textarea:focus,
+        .form-grupo select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: var(--color-white);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-grupo textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .preferencias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .preferencia-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 1.2rem;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--color-background);
+        }
+
+        .preferencia-item:hover {
+            border-color: var(--color-primary);
+            background: rgba(14, 165, 233, 0.1);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .preferencia-item.seleccionada {
+            background: var(--gradient-primary);
+            border-color: var(--color-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-cyan);
+        }
+
+        .preferencia-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .preferencia-item label {
+            color: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .btn-guardar {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-guardar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-guardar:hover {
+            background: var(--gradient-secondary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-cyan);
+        }
+
+        .btn-guardar:hover::before {
+            left: 100%;
+        }
+
+        .btn-cancelar {
+            background: transparent;
+            color: var(--color-primary);
+            border: 2px solid var(--color-primary);
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-cancelar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-secondary);
+            transition: left 0.3s;
+            z-index: -1;
+        }
+
+        .btn-cancelar:hover {
+            color: white;
+            border-color: transparent;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-cyan);
+        }
+
+        .btn-cancelar:hover::before {
+            left: 0;
+        }
+
+        .perfil-preview {
+            background: var(--color-background);
+            border: 2px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow-md);
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
+        .perfil-preview h3 {
+            color: var(--color-text-dark);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .perfil-preview h3::before {
+            content: '👁️';
+            font-size: 1.2rem;
+        }
+
+        .preview-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: var(--color-white);
+            border-radius: 8px;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .preview-item strong {
+            color: var(--color-text-dark);
+            font-weight: 700;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .preview-item span {
+            color: var(--color-text-light);
+            font-weight: 500;
+        }
+
+        .preview-intereses {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .preview-interes {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .usuario-info {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-cyan);
+        }
+
+        .usuario-info h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .usuario-info p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .perfil-container {
+                padding: 1rem;
+            }
+
+            .perfil-header h1 {
+                font-size: 2.2rem;
+            }
+
+            .perfil-form {
+                padding: 1.5rem;
+            }
+
+            .preferencias-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .usuario-info {
+                padding: 1rem;
+            }
+
+            .usuario-info h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .perfil-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-seccion h3 {
+                font-size: 1.2rem;
+            }
+
+            .preview-item strong {
+                min-width: 100px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ROOMIES</h1>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+                <li><a href="registro.html"><span>➕</span> Registrar Propiedad</a></li>
+                <li><a href="mis-solicitudes.html"><span>📋</span> Mis Solicitudes</a></li>
+                <li><a href="perfiles.html"><span>👥</span> Perfiles</a></li>
+                <li><a href="mi-perfil.html"><span>👤</span> Mi Perfil</a></li>
+                <li><a href="mensajes.html"><span>💬</span> Mensajes</a></li>
+                <li><a href="bienvenida.html"><span>⚙️</span> Mis Preferencias</a></li>
+                <li><a href="#" id="logout-link"><span>🚪</span> Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="perfil-container">
+        <div class="perfil-header">
+            <h1>Mi Perfil de Estudiante</h1>
+            <p>Completa tu perfil para que otros estudiantes puedan conocerte mejor y encontrar compañeros de alquiler</p>
+        </div>
+
+        <!-- Información del usuario logueado -->
+        <div class="usuario-info" id="usuario-info">
+            <h2>Cargando información...</h2>
+            <p>Usuario ID: <span id="usuario-id"></span></p>
+        </div>
+
+        <form class="perfil-form" id="perfil-form">
+            <div class="form-seccion">
+                <h3>Información Personal</h3>
+                <div class="form-grupo">
+                    <label for="idprop">ID de Propietario:</label>
+                    <input type="text" id="idprop" name="idprop" readonly style="background-color: #f8f9fa; color: #6c757d;">
+                </div>
+                <div class="form-grupo">
+                    <label for="nombre">Nombre Completo:</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+                <div class="form-grupo">
+                    <label for="carrera">Carrera:</label>
+                    <select id="carrera" name="carrera" required>
+                        <option value="">Selecciona tu carrera</option>
+                        <option value="Ingeniería en Sistemas">Ingeniería en Sistemas</option>
+                        <option value="Medicina">Medicina</option>
+                        <option value="Arquitectura">Arquitectura</option>
+                        <option value="Administración de Empresas">Administración de Empresas</option>
+                        <option value="Psicología">Psicología</option>
+                        <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                        <option value="Derecho">Derecho</option>
+                        <option value="Contaduría Pública">Contaduría Pública</option>
+                        <option value="Economía">Economía</option>
+                        <option value="Periodismo">Periodismo</option>
+                        <option value="Otra">Otra</option>
+                    </select>
+                </div>
+                <div class="form-grupo">
+                    <label for="email">Correo Electrónico:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-grupo">
+                    <label for="telefono">Teléfono (opcional):</label>
+                    <input type="tel" id="telefono" name="telefono">
+                </div>
+            </div>
+
+            <div class="form-seccion">
+                <h3>Descripción Personal</h3>
+                <div class="form-grupo">
+                    <label for="descripcion">Cuéntanos sobre ti:</label>
+                    <textarea id="descripcion" name="descripcion" placeholder="Describe tu personalidad, hábitos de estudio, lo que buscas en compañeros de alquiler, etc." required></textarea>
+                </div>
+            </div>
+
+            <div class="form-seccion">
+                <h3>Mis Intereses</h3>
+                <p style="color: var(--color-text-light); margin-bottom: 1rem;">Selecciona los intereses que mejor te describan:</p>
+                <div class="preferencias-grid">
+                    <div class="preferencia-item" data-preferencia="academico">
+                        <input type="checkbox" id="pref-academico" value="academico">
+                        <label for="pref-academico">📚 Académico</label>
+                    </div>
+                    <div class="preferencia-item" data-preferencia="deportes">
+                        <input type="checkbox" id="pref-deportes" value="deportes">
+                        <label for="pref-deportes">⚽ Deportes</label>
+                    </div>
+                    <div class="preferencia-item" data-preferencia="cultura">
+                        <input type="checkbox" id="pref-cultura" value="cultura">
+                        <label for="pref-cultura">🎭 Cultura y Arte</label>
+                    </div>
+                    <div class="preferencia-item" data-preferencia="tecnologia">
+                        <input type="checkbox" id="pref-tecnologia" value="tecnologia">
+                        <label for="pref-tecnologia">💻 Tecnología</label>
+                    </div>
+                    <div class="preferencia-item" data-preferencia="social">
+                        <input type="checkbox" id="pref-social" value="social">
+                        <label for="pref-social">👥 Social y Voluntariado</label>
+                    </div>
+                    <div class="preferencia-item" data-preferencia="emprendimiento">
+                        <input type="checkbox" id="pref-emprendimiento" value="emprendimiento">
+                        <label for="pref-emprendimiento">🚀 Emprendimiento</label>
+                    </div>
+                    <div class="preferencia-item" data-preferencia="investigacion">
+                        <input type="checkbox" id="pref-investigacion" value="investigacion">
+                        <label for="pref-investigacion">🔬 Investigación</label>
+                    </div>
+                    <div class="preferencia-item" data-preferencia="internacional">
+                        <input type="checkbox" id="pref-internacional" value="internacional">
+                        <label for="pref-internacional">🌍 Internacional</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-guardar">Guardar Perfil</button>
+            <button type="button" class="btn-cancelar" onclick="window.location.href='index.html'">Cancelar</button>
+        </form>
+
+        <div class="perfil-preview" id="perfil-preview" style="display: none;">
+            <h3>Vista Previa de tu Perfil</h3>
+            <div id="preview-content"></div>
+        </div>
+    </main>
+
+    <script>
+        // Verificar si el usuario está logueado
+        const idLog = localStorage.getItem('propietarioLogueado');
+        if (!idLog) {
+            window.location.href = 'login.html';
+        }
+
+        // Cargar información del usuario logueado
+        function cargarInformacionUsuario() {
+            const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            // Buscar por idprop (como se guarda en registro-usuario.html)
+            const usuarioActual = usuarios.find(u => u.idprop === idLog);
+            
+            if (usuarioActual) {
+                document.getElementById('usuario-id').textContent = idLog;
+                document.getElementById('usuario-info').innerHTML = `
+                    <h2>👋 ¡Hola, ${usuarioActual.nombre}!</h2>
+                    <p>Email: ${usuarioActual.correo} | ID: ${usuarioActual.idprop}</p>
+                `;
+                
+                // Pre-llenar campos con información del usuario del registro
+                document.getElementById('idprop').value = usuarioActual.idprop || '';
+                document.getElementById('nombre').value = usuarioActual.nombre || '';
+                document.getElementById('email').value = usuarioActual.correo || '';
+            } else {
+                document.getElementById('usuario-info').innerHTML = `
+                    <h2>👤 Usuario</h2>
+                    <p>ID: ${idLog}</p>
+                `;
+            }
+        }
+
+        // Cargar perfil existente si existe
+        function cargarPerfilExistente() {
+            const perfilExistente = localStorage.getItem('perfilEstudiante');
+            if (perfilExistente) {
+                const perfil = JSON.parse(perfilExistente);
+                document.getElementById('nombre').value = perfil.nombre || '';
+                document.getElementById('carrera').value = perfil.carrera || '';
+                document.getElementById('email').value = perfil.email || '';
+                document.getElementById('telefono').value = perfil.telefono || '';
+                document.getElementById('descripcion').value = perfil.descripcion || '';
+                
+                // Marcar preferencias seleccionadas
+                if (perfil.preferencias) {
+                    perfil.preferencias.forEach(pref => {
+                        const checkbox = document.getElementById(`pref-${pref}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            const item = checkbox.closest('.preferencia-item');
+                            if (item) {
+                                item.classList.add('seleccionada');
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Sincronizar con datos del registro si no hay perfil existente
+            const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            const usuarioActual = usuarios.find(u => u.idprop === idLog);
+            
+            if (usuarioActual && !perfilExistente) {
+                // Si no hay perfil existente, usar datos del registro
+                document.getElementById('idprop').value = usuarioActual.idprop || '';
+                document.getElementById('nombre').value = usuarioActual.nombre || '';
+                document.getElementById('email').value = usuarioActual.correo || '';
+            }
+        }
+
+        // Eventos para las preferencias
+        document.querySelectorAll('.preferencia-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                
+                if (checkbox.checked) {
+                    this.classList.add('seleccionada');
+                } else {
+                    this.classList.remove('seleccionada');
+                }
+            });
+        });
+
+        // Función para generar vista previa
+        function generarVistaPrevia() {
+            const idprop = document.getElementById('idprop').value;
+            const nombre = document.getElementById('nombre').value;
+            const carrera = document.getElementById('carrera').value;
+            const email = document.getElementById('email').value;
+            const telefono = document.getElementById('telefono').value;
+            const descripcion = document.getElementById('descripcion').value;
+            
+            const preferenciasSeleccionadas = Array.from(document.querySelectorAll('.preferencia-item input:checked'))
+                .map(input => input.value);
+
+            const preferenciasNombres = {
+                'academico': '📚 Académico',
+                'deportes': '⚽ Deportes',
+                'cultura': '🎭 Cultura y Arte',
+                'tecnologia': '💻 Tecnología',
+                'social': '👥 Social y Voluntariado',
+                'emprendimiento': '🚀 Emprendimiento',
+                'investigacion': '🔬 Investigación',
+                'internacional': '🌍 Internacional'
+            };
+
+            const previewContent = document.getElementById('preview-content');
+            previewContent.innerHTML = `
+                <div class="preview-item">
+                    <strong>ID de Propietario:</strong> <span>${idprop || 'No especificado'}</span>
+                </div>
+                <div class="preview-item">
+                    <strong>Nombre:</strong> <span>${nombre || 'No especificado'}</span>
+                </div>
+                <div class="preview-item">
+                    <strong>Carrera:</strong> <span>${carrera || 'No especificada'}</span>
+                </div>
+                <div class="preview-item">
+                    <strong>Email:</strong> <span>${email || 'No especificado'}</span>
+                </div>
+                <div class="preview-item">
+                    <strong>Teléfono:</strong> <span>${telefono || 'No especificado'}</span>
+                </div>
+                <div class="preview-item">
+                    <strong>Descripción:</strong> <span>${descripcion || 'No especificada'}</span>
+                </div>
+                <div class="preview-item">
+                    <strong>Intereses:</strong>
+                    <div class="preview-intereses">
+                        ${preferenciasSeleccionadas.length > 0 ? 
+                            preferenciasSeleccionadas.map(pref => 
+                                `<span class="preview-interes">${preferenciasNombres[pref]}</span>`
+                            ).join('') : 
+                            '<span>No especificados</span>'}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('perfil-preview').style.display = 'block';
+        }
+
+        // Eventos para generar vista previa en tiempo real
+        document.getElementById('idprop').addEventListener('input', generarVistaPrevia);
+        document.getElementById('nombre').addEventListener('input', generarVistaPrevia);
+        document.getElementById('carrera').addEventListener('change', generarVistaPrevia);
+        document.getElementById('email').addEventListener('input', generarVistaPrevia);
+        document.getElementById('telefono').addEventListener('input', generarVistaPrevia);
+        document.getElementById('descripcion').addEventListener('input', generarVistaPrevia);
+
+        // Eventos para preferencias
+        document.querySelectorAll('.preferencia-item input').forEach(input => {
+            input.addEventListener('change', generarVistaPrevia);
+        });
+
+        // Guardar perfil
+        document.getElementById('perfil-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const idprop = document.getElementById('idprop').value;
+            const nombre = document.getElementById('nombre').value;
+            const carrera = document.getElementById('carrera').value;
+            const email = document.getElementById('email').value;
+            const telefono = document.getElementById('telefono').value;
+            const descripcion = document.getElementById('descripcion').value;
+            
+            const preferencias = Array.from(document.querySelectorAll('.preferencia-item input:checked'))
+                .map(input => input.value);
+
+            if (preferencias.length === 0) {
+                alert('Por favor, selecciona al menos un interés.');
+                return;
+            }
+
+            const perfil = {
+                id: idLog,
+                idprop: idprop,
+                nombre,
+                carrera,
+                email,
+                telefono,
+                descripcion,
+                preferencias,
+                fechaCreacion: new Date().toISOString()
+            };
+
+            localStorage.setItem('perfilEstudiante', JSON.stringify(perfil));
+            
+            // Agregar el perfil a la lista de perfiles disponibles
+            const perfilesExistentes = JSON.parse(localStorage.getItem('perfilesEstudiantes') || '[]');
+            const perfilExistenteIndex = perfilesExistentes.findIndex(p => p.id === idLog);
+            
+            const perfilParaLista = {
+                id: idLog,
+                nombre: perfil.nombre,
+                carrera: perfil.carrera,
+                preferencias: perfil.preferencias,
+                descripcion: perfil.descripcion,
+                contacto: perfil.email
+            };
+            
+            if (perfilExistenteIndex !== -1) {
+                perfilesExistentes[perfilExistenteIndex] = perfilParaLista;
+            } else {
+                perfilesExistentes.push(perfilParaLista);
+            }
+            
+            localStorage.setItem('perfilesEstudiantes', JSON.stringify(perfilesExistentes));
+            
+            alert('Perfil guardado exitosamente.');
+            window.location.href = 'perfiles.html';
+        });
+
+        // Marcado de página activa en el menú
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.main-nav a');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Botón cerrar sesión
+        document.getElementById('logout-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('propietarioLogueado');
+            localStorage.removeItem('rol');
+            localStorage.removeItem('nombreUsuario');
+            window.location.href = 'login.html';
+        });
+
+        // Inicializar
+        cargarInformacionUsuario();
+        cargarPerfilExistente();
+        
+        // Generar vista previa inicial
+        setTimeout(generarVistaPrevia, 100);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajería - ROOMIES</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Variables CSS para consistencia */
+        :root {
+            --color-primary: #0ea5e9;
+            --color-secondary: #6366f1;
+            --color-accent: #10b981;
+            --color-text-dark: #0f172a;
+            --color-text-light: #6b7280;
+            --color-background: #f8fafc;
+            --color-border: #e5e7eb;
+            --color-white: #ffffff;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --shadow-cyan: 0 4px 15px rgba(14, 165, 233, 0.3);
+            --gradient-primary: linear-gradient(135deg, #06b6d4, #0ea5e9);
+            --gradient-secondary: linear-gradient(135deg, #0ea5e9, #6366f1);
+            --gradient-accent: linear-gradient(135deg, #10b981, #059669);
+            --border-radius: 15px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0, 0, 0); }
+            40%, 43% { transform: translate3d(0, -8px, 0); }
+            70% { transform: translate3d(0, -4px, 0); }
+            90% { transform: translate3d(0, -2px, 0); }
+        }
+
+        /* Layout principal */
+        .mensajes-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .mensajes-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .mensajes-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .mensajes-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .mensajes-header p {
+            font-size: 1.3rem;
+            line-height: 1.7;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 400;
+            color: var(--color-text-light);
+        }
+
+        /* Sistema de mensajería */
+        .chat-system {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            height: 70vh;
+            background: var(--color-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 2px solid var(--color-border);
+        }
+
+        /* Lista de contactos */
+        .contactos-lista {
+            background: var(--color-background);
+            border-right: 2px solid var(--color-border);
+            overflow-y: auto;
+            animation: slideInLeft 0.6s ease-out 0.2s both;
+        }
+
+        .contactos-header {
+            padding: 1.5rem;
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contactos-header::before {
+            content: '👥';
+            font-size: 1.1rem;
+        }
+
+        .contacto-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .contacto-item:hover {
+            background: rgba(14, 165, 233, 0.1);
+        }
+
+        .contacto-item.activo {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .contacto-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--gradient-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .contacto-info {
+            flex: 1;
+        }
+
+        .contacto-nombre {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .contacto-ultimo-mensaje {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .contacto-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: var(--color-error);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* Área de chat */
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: 1.5rem;
+            background: var(--color-white);
+            border-bottom: 2px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .chat-info h3 {
+            color: var(--color-text-dark);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .chat-info p {
+            color: var(--color-text-light);
+            font-size: 0.9rem;
+        }
+
+        .chat-mensajes {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: var(--color-background);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mensaje {
+            max-width: 70%;
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            position: relative;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .mensaje.recibido {
+            background: var(--color-white);
+            color: var(--color-text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mensaje.enviado {
+            background: var(--gradient-primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            box-shadow: var(--shadow-cyan);
+        }
+
+        .mensaje-contenido {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .mensaje-fecha {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        .mensaje-nuevo-indicator {
+            background: var(--color-error);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        /* Área de escritura */
+        .chat-input-area {
+            padding: 1.5rem;
+            background: var(--color-white);
+            border-top: 2px solid var(--color-border);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--color-border);
+            border-radius: 25px;
+            font-size: 1rem;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .btn-enviar-mensaje {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-enviar-mensaje:hover {
+            background: var(--gradient-secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-cyan);
+        }
+
+        .btn-enviar-mensaje:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Estado sin mensajes */
+        .sin-mensajes {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--color-text-light);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .sin-mensajes::before {
+            content: '💬';
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        .sin-mensajes h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--color-text-dark);
+        }
+
+        .sin-mensajes p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .chat-system {
+                grid-template-columns: 300px 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mensajes-container {
+                padding: 1rem;
+            }
+
+            .mensajes-header h1 {
+                font-size: 2.2rem;
+            }
+
+            .chat-system {
+                grid-template-columns: 1fr;
+                height: 80vh;
+            }
+
+            .contactos-lista {
+                border-right: none;
+                border-bottom: 2px solid var(--color-border);
+                max-height: 200px;
+            }
+
+            .chat-area {
+                height: calc(100% - 200px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mensajes-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .chat-header {
+                padding: 1rem;
+            }
+
+            .chat-mensajes {
+                padding: 1rem;
+            }
+
+            .mensaje {
+                max-width: 85%;
+            }
+
+            .chat-input-area {
+                padding: 1rem;
+            }
+        }
+
+        /* Scrollbar personalizado */
+        .contactos-lista::-webkit-scrollbar,
+        .chat-mensajes::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .contactos-lista::-webkit-scrollbar-track,
+        .chat-mensajes::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        .contactos-lista::-webkit-scrollbar-thumb,
+        .chat-mensajes::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 3px;
+        }
+
+        .contactos-lista::-webkit-scrollbar-thumb:hover,
+        .chat-mensajes::-webkit-scrollbar-thumb:hover {
+            background: var(--gradient-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ROOMIES</h1>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+                <li><a href="registro.html"><span>➕</span> Registrar Propiedad</a></li>
+                <li><a href="mis-solicitudes.html"><span>📋</span> Mis Solicitudes</a></li>
+                <li><a href="perfiles.html"><span>👥</span> Perfiles</a></li>
+                <li><a href="mi-perfil.html"><span>👤</span> Mi Perfil</a></li>
+                <li><a href="mensajes.html"><span>💬</span> Mensajes</a></li>
+                <li><a href="bienvenida.html"><span>⚙️</span> Mis Preferencias</a></li>
+                <li><a href="#" id="logout-link"><span>🚪</span> Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="mensajes-container">
+        <div class="mensajes-header">
+            <h1>Mensajería</h1>
+            <p>Conecta con otros estudiantes y coordina el alquiler de propiedades juntos</p>
+        </div>
+
+        <div class="chat-system">
+            <!-- Lista de contactos -->
+            <div class="contactos-lista">
+                <div class="contactos-header">
+                    Conversaciones
+                </div>
+                <div id="contactos-container">
+                    <!-- Los contactos se cargarán dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Área de chat -->
+            <div class="chat-area">
+                <div id="chat-header" class="chat-header" style="display: none;">
+                    <div class="chat-avatar" id="chat-avatar">U</div>
+                    <div class="chat-info">
+                        <h3 id="chat-nombre">Usuario</h3>
+                        <p id="chat-estado">En línea</p>
+                    </div>
+                </div>
+
+                <div id="chat-mensajes" class="chat-mensajes">
+                    <div class="sin-mensajes">
+                        <h3>¡Bienvenido a la mensajería!</h3>
+                        <p>Selecciona una conversación de la lista para comenzar a chatear con otros estudiantes.</p>
+                    </div>
+                </div>
+
+                <div id="chat-input-area" class="chat-input-area" style="display: none;">
+                    <textarea 
+                        id="chat-input" 
+                        class="chat-input" 
+                        placeholder="Escribe tu mensaje aquí..."
+                        rows="1"
+                    ></textarea>
+                    <button id="btn-enviar" class="btn-enviar-mensaje">
+                        <span>Enviar</span>
+                        <span>📤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Verificar si el usuario está logueado
+        const idLog = localStorage.getItem('propietarioLogueado');
+        if (!idLog) {
+            window.location.href = 'login.html';
+        }
+
+        // Obtener información del usuario actual
+        const miPerfil = JSON.parse(localStorage.getItem('perfilEstudiante') || '{}');
+        const miNombre = miPerfil.nombre || 'Estudiante UNAH';
+
+        // Variables globales
+        let contactos = [];
+        let conversacionActual = null;
+        let mensajes = {};
+
+        // Cargar contactos y mensajes
+        function cargarContactos() {
+            // Obtener todos los perfiles de estudiantes
+            const perfilesGuardados = localStorage.getItem('perfilesEstudiantes');
+            let todosLosPerfiles = [];
+            
+            if (perfilesGuardados) {
+                todosLosPerfiles = JSON.parse(perfilesGuardados);
+            }
+
+            // Si no hay perfiles guardados, usar los de ejemplo
+            if (todosLosPerfiles.length === 0) {
+                todosLosPerfiles = [
+                    { id: 1, nombre: "María González", carrera: "Ingeniería en Sistemas" },
+                    { id: 2, nombre: "Carlos Mendoza", carrera: "Medicina" },
+                    { id: 3, nombre: "Ana Rodríguez", carrera: "Arquitectura" },
+                    { id: 4, nombre: "Luis Herrera", carrera: "Administración de Empresas" },
+                    { id: 5, nombre: "Sofia Torres", carrera: "Psicología" },
+                    { id: 6, nombre: "Diego Morales", carrera: "Ingeniería Industrial" },
+                    { id: 7, nombre: "Laura Martínez", carrera: "Ingeniería Civil" },
+                    { id: 8, nombre: "Pedro Pérez", carrera: "Arquitectura" }
+                ];
+            }
+
+            // Filtrar el perfil del usuario actual
+            contactos = todosLosPerfiles.filter(perfil => perfil.id != idLog);
+
+            // Cargar mensajes existentes
+            contactos.forEach(contacto => {
+                const mensajesContacto = JSON.parse(localStorage.getItem(`chat_${idLog}_${contacto.id}`) || '[]');
+                mensajes[contacto.id] = mensajesContacto;
+            });
+
+            renderizarContactos();
+        }
+
+        // Renderizar lista de contactos
+        function renderizarContactos() {
+            const container = document.getElementById('contactos-container');
+            container.innerHTML = '';
+
+            contactos.forEach(contacto => {
+                const mensajesContacto = mensajes[contacto.id] || [];
+                const mensajesNoLeidos = mensajesContacto.filter(m => !m.leido && m.de !== idLog).length;
+                const ultimoMensaje = mensajesContacto.length > 0 ? mensajesContacto[mensajesContacto.length - 1] : null;
+
+                const contactoDiv = document.createElement('div');
+                contactoDiv.className = 'contacto-item';
+                contactoDiv.onclick = () => abrirConversacion(contacto);
+                
+                contactoDiv.innerHTML = `
+                    <div class="contacto-avatar">${contacto.nombre.charAt(0)}</div>
+                    <div class="contacto-info">
+                        <div class="contacto-nombre">${contacto.nombre}</div>
+                        <div class="contacto-ultimo-mensaje">
+                            ${ultimoMensaje ? (ultimoMensaje.de === idLog ? 'Tú: ' : '') + ultimoMensaje.contenido.substring(0, 30) + '...' : 'Sin mensajes'}
+                        </div>
+                    </div>
+                    ${mensajesNoLeidos > 0 ? `<div class="contacto-badge">${mensajesNoLeidos}</div>` : ''}
+                `;
+
+                container.appendChild(contactoDiv);
+            });
+        }
+
+        // Abrir conversación
+        function abrirConversacion(contacto) {
+            conversacionActual = contacto;
+            
+            // Actualizar header del chat
+            document.getElementById('chat-header').style.display = 'flex';
+            document.getElementById('chat-avatar').textContent = contacto.nombre.charAt(0);
+            document.getElementById('chat-nombre').textContent = contacto.nombre;
+            document.getElementById('chat-estado').textContent = 'En línea';
+            
+            // Mostrar área de input
+            document.getElementById('chat-input-area').style.display = 'flex';
+            
+            // Marcar contacto como activo
+            document.querySelectorAll('.contacto-item').forEach(item => {
+                item.classList.remove('activo');
+            });
+            event.currentTarget.classList.add('activo');
+            
+            // Cargar mensajes
+            cargarMensajes(contacto.id);
+        }
+
+        // Cargar mensajes de la conversación
+        function cargarMensajes(contactoId) {
+            const mensajesContacto = mensajes[contactoId] || [];
+            const chatMensajes = document.getElementById('chat-mensajes');
+            
+            if (mensajesContacto.length === 0) {
+                chatMensajes.innerHTML = `
+                    <div class="sin-mensajes">
+                        <h3>¡Nueva conversación!</h3>
+                        <p>Comienza a chatear con ${conversacionActual.nombre} sobre el alquiler de propiedades.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            chatMensajes.innerHTML = '';
+            
+            mensajesContacto.forEach(mensaje => {
+                const mensajeDiv = document.createElement('div');
+                mensajeDiv.className = `mensaje ${mensaje.de === idLog ? 'enviado' : 'recibido'}`;
+                
+                const fecha = new Date(mensaje.fecha);
+                const fechaFormateada = fecha.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                mensajeDiv.innerHTML = `
+                    <div class="mensaje-contenido">${mensaje.contenido}</div>
+                    <div class="mensaje-fecha">${fechaFormateada}</div>
+                `;
+
+                chatMensajes.appendChild(mensajeDiv);
+                
+                // Marcar como leído si es recibido
+                if (mensaje.de !== idLog && !mensaje.leido) {
+                    mensaje.leido = true;
+                }
+            });
+
+            // Scroll al final
+            chatMensajes.scrollTop = chatMensajes.scrollHeight;
+            
+            // Guardar mensajes actualizados
+            localStorage.setItem(`chat_${idLog}_${contactoId}`, JSON.stringify(mensajesContacto));
+        }
+
+        // Enviar mensaje
+        function enviarMensaje() {
+            if (!conversacionActual) return;
+            
+            const input = document.getElementById('chat-input');
+            const contenido = input.value.trim();
+            
+            if (!contenido) return;
+            
+            const nuevoMensaje = {
+                id: Date.now(),
+                de: idLog,
+                para: conversacionActual.id,
+                contenido: contenido,
+                fecha: new Date().toISOString(),
+                leido: false
+            };
+            
+            // Agregar mensaje a la conversación
+            if (!mensajes[conversacionActual.id]) {
+                mensajes[conversacionActual.id] = [];
+            }
+            mensajes[conversacionActual.id].push(nuevoMensaje);
+            
+            // Guardar en localStorage
+            localStorage.setItem(`chat_${idLog}_${conversacionActual.id}`, JSON.stringify(mensajes[conversacionActual.id]));
+            
+            // Limpiar input
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Recargar mensajes
+            cargarMensajes(conversacionActual.id);
+            
+            // Actualizar lista de contactos
+            renderizarContactos();
+        }
+
+        // Event listeners
+        document.getElementById('btn-enviar').addEventListener('click', enviarMensaje);
+
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensaje();
+            }
+        });
+
+        // Auto-resize del textarea
+        document.getElementById('chat-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Marcado de página activa en el menú
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.main-nav a');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Botón cerrar sesión
+        document.getElementById('logout-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('propietarioLogueado');
+            localStorage.removeItem('rol');
+            localStorage.removeItem('nombreUsuario');
+            window.location.href = 'login.html';
+        });
+
+        // Inicializar
+        cargarContactos();
+    </script>
+</body>
+</html> 
